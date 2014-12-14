@@ -1,0 +1,25 @@
+{
+    "name": "kaushikam/lib",
+    "description": "All libraries needed for my projects",
+    "minimum-stability": "stable",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "kaushik asokan",
+            "email": "kaushikam@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"kaushikam\\lib\\": "src"}
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "kaushikam\\lib\\test\\": "test"
+        }
+    },
+    "require": {
+        "katzgrau/klogger": "1.0.0",
+        "phpunit/phpunit": "4.3.5",
+        "phpunit/dbunit": "1.3.1"
+    }
+}

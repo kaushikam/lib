@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit colors="true">
+    <php>
+        <!--<var name="DB_DSN" value="mysql:host=localhost;dbname=kwa_test"/>-->
+        <var name="DB_DSN" value="oci:dbname=//localhost:1521/xe"/>
+        <var name="DB_USER" value="root"/>
+        <var name="DB_PASSWORD" value="redhat"/>
+        <var name="DB_NAME" value="kwa_test"/>
+    </php>
+    <testsuites>
+        <testsuite name="Application Test Suite">
+            <directory>./test</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
