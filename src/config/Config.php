@@ -10,17 +10,20 @@ namespace kaushikam\lib\config;
 
 
 class Config {
-    private static $me;
+    /**
+     * @var IConfiguration
+     */
+    private static $configuration;
 
-    private function __construct() {
-
-    }
-
-    public static function getConfig() {
-        if (is_null(self::$me)) {
-            self::$me = new Config();
+    public static function getConfig(IConfiguration $configuration) {
+        if (is_null(self::$configuration)) {
+            self::$configuration = $configuration;
         }
 
-        return self::$me;
+        return self::$configuration;
     }
-} 
+
+    public function setConfiguration(IConfiguration $configuration) {
+        self::$configuration = $configuration;
+    }
+}
