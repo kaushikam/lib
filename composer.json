@@ -18,11 +18,11 @@
         }
     },
     "require": {
-        "katzgrau/klogger": "1.0.0",
-        "phpunit/phpunit": "4.3.5",
-        "phpunit/dbunit": "1.3.1"
+        "katzgrau/klogger": "1.0.0"
     },
     "require-dev": {
+        "phpunit/phpunit": "4.3.5",
+        "phpunit/dbunit": "1.3.1",
         "rg/injektor": "v1.3.1"
     }
 }
