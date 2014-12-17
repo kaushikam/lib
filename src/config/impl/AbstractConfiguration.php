@@ -37,7 +37,7 @@ abstract class AbstractConfiguration implements IConfiguration {
         return isset($this->_data[$name]);
     }
 
-    public function __get($name) {
+    public function get($name) {
         $parsed = explode('.', $name);
 
         $result = $this->_data;
