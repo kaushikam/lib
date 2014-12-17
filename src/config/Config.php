@@ -26,4 +26,8 @@ class Config {
     public function setConfiguration(IConfiguration $configuration) {
         self::$configuration = $configuration;
     }
+
+    public static function configureInstance(IConfiguration $configuration) {
+        self::$configuration = $configuration;
+    }
 }
