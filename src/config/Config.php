@@ -8,6 +8,7 @@
 
 namespace kaushikam\lib\config;
 
+use \InvalidArgumentException;
 
 class Config {
     /**
@@ -15,8 +16,14 @@ class Config {
      */
     private static $configuration;
 
-    public static function getConfig(IConfiguration $configuration) {
+    public static function getConfig($configuration = null) {
         if (is_null(self::$configuration)) {
+            if (is_null($configuration))
+                throw new InvalidArgumentException("Configuration is null");
+
+            if (!$configuration instanceof IConfiguration)
+                throw new InvalidArgumentException("Invalid configuration type");
+
             self::$configuration = $configuration;
         }
 
