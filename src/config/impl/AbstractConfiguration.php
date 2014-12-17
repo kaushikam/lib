@@ -55,6 +55,24 @@ abstract class AbstractConfiguration implements IConfiguration {
         return $result;
     }
 
+    public function set($name, $value) {
+        $parsed = explode('.', $name);
+
+        $data =& $this->_data;
+
+        while (count($parsed) > 1) {
+            $next = array_shift($parsed);
+
+            if ( ! isset($data[$next]) || ! is_array($data[$next])) {
+                $data[$next] = [];
+            }
+
+            $data =& $data[$next];
+        }
+
+        $data[array_shift($parsed)] = $value;
+    }
+
     public function toArray() {
         return $this->_data;
     }
