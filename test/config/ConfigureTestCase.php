@@ -22,9 +22,9 @@ class ConfigureTestCase extends BaseTestCase {
     protected $_configuration;
 
     protected function setUp() {
-        $this->_configuration = Config::getConfig(new TestConfigurationImpl2());
-
-        parent::setUp();
+        Config::configureInstance(new TestConfigurationImpl2());
+        $this->_configuration = Config::getConfig();
+            parent::setUp();
     }
 
     public function testGettingValueFromConfig() {

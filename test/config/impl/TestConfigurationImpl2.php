@@ -17,12 +17,12 @@ class TestConfigurationImpl2 extends AbstractConfiguration implements ITestConfi
 
     public function getEndPoint()
     {
-        return $this->endPoint;
+        return $this->get('endPoint');
     }
 
     public function getValidPort()
     {
-        return $this->validPort;
+        return $this->get('validPort');
     }
 
     protected function development() {

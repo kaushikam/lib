@@ -30,10 +30,6 @@ class Config {
         return self::$configuration;
     }
 
-    public function setConfiguration(IConfiguration $configuration) {
-        self::$configuration = $configuration;
-    }
-
     public static function configureInstance(IConfiguration $configuration) {
         self::$configuration = $configuration;
     }
