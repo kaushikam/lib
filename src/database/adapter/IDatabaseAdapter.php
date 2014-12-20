@@ -22,10 +22,22 @@ interface IDatabaseAdapter {
      */
     public function disconnect();
 
+    public function prepare($sql, Array $options = array());
+
+    /**
+     * @return \PDOStatement
+     */
+    public function getStatement();
+
     /**
      * @return LoggerInterface
      */
     public function getLogger();
 
     public function setLogger(LoggerInterface $logger);
+
+    /**
+     * @return bool
+     */
+    public function isConnected();
 } 

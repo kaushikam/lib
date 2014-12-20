@@ -39,9 +39,23 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
      */
     protected $_logger;
 
+    /**
+     * @var \PDOStatement
+     */
+    protected $_statement;
+
+    /**
+     * @var string
+     */
     const DSN = "mysql:dbname=%s;host=%s";
 
+    /**
+     * @var bool
+     */
+    protected $_connectionStatus;
+
     public function __construct($dbName, $host, $user, $password, Array $driverOptions = array()) {
+        $this->_connectionStatus = false;
         $this->_dbConfig = compact('dbName', 'host', 'user', 'password', 'driverOptions');
     }
 
@@ -51,6 +65,13 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
      */
     public function connect() {
         $result = true;
+
+        if ($this->_connection) {
+            $this->_connectionStatus = true;
+            return $result;
+        }
+
+
         try {
             $this->getLogger()->debug("Trying to connect");
             $this->_connection = new \PDO(sprintf(self::DSN, $this->_dbConfig['dbName'],
@@ -58,6 +79,9 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
                                           $this->_dbConfig['password'], $this->_dbConfig['driverOptions']);
             $this->_connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->_connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+
+            $this->_connectionStatus = true;
+
             $this->getLogger()->debug("Connection successful");
         } catch (PDOException $e) {
             $this->getLogger()->alert($e->getMessage());
@@ -65,6 +89,41 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
         }
 
         return $result;
+    }
+
+    /**
+     * @return void
+     */
+    public function disconnect() {
+        $this->getLogger()->debug("Going to disconnect from database");
+        $this->_connection = null;
+    }
+
+    /**
+     * @param $sql
+     * @param array $options
+     * @return $this
+     * @throws DatabaseException
+     */
+    public function prepare($sql, Array $options = array()) {
+        $this->getLogger()->debug("Entering prepare method");
+        $this->getLogger()->debug("SQL: " . $sql);
+        $this->getLogger()->debug("Options: " . print_r($options, true));
+
+        if ($this->connect()) {
+            try {
+                $this->_statement = $this->_connection->prepare($sql, $options);
+                $this->getLogger()->debug("Statement prepared");
+                return $this;
+            } catch (PDOException $e) {
+                $this->getLogger()->alert($e->getMessage());
+                throw new DatabaseException($e->getMessage(), $e->getCode());
+            }
+        }
+    }
+
+    public function getStatement() {
+        return $this->_statement;
     }
 
     /**
@@ -82,11 +141,7 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
         $this->_logger = $logger;
     }
 
-    /**
-     * @return void
-     */
-    public function disconnect() {
-        $this->getLogger()->debug("Going to disconnect from database");
-        $this->_connection = null;
+    public function isConnected() {
+        return $this->_connectionStatus;
     }
 } 
