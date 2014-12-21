@@ -9,6 +9,7 @@
 namespace kaushikam\lib\database\adapter;
 
 
+use kaushikam\lib\database\exception\DatabaseException;
 use Psr\Log\LoggerInterface;
 
 interface IDatabaseAdapter {
@@ -22,7 +23,20 @@ interface IDatabaseAdapter {
      */
     public function disconnect();
 
+    /**
+     * @param $sql
+     * @param array $options
+     * @throws DatabaseException
+     * @return $this
+     */
     public function prepare($sql, Array $options = array());
+
+    /**
+     * @param array $parameters
+     * @throws DatabaseException
+     * @return $this
+     */
+    public function execute(Array $parameters = array());
 
     public function getStatement();
 

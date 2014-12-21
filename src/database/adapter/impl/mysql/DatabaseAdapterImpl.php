@@ -103,15 +103,50 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
         $this->getLogger()->debug("SQL: " . $sql);
         $this->getLogger()->debug("Options: " . print_r($options, true));
 
-        if ($this->connect()) {
-            try {
-                $this->_statement = $this->_connection->prepare($sql, $options);
-                $this->getLogger()->debug("Statement prepared");
-                return $this;
-            } catch (PDOException $e) {
-                $this->getLogger()->alert($e->getMessage());
-                throw new DatabaseException($e->getMessage(), $e->getCode());
+        try {
+            $this->_statement = $this->getConnection()->prepare($sql, $options);
+            $this->getLogger()->debug("Statement prepared");
+            return $this;
+        } catch (PDOException $e) {
+            $this->getLogger()->alert($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode());
+        }
+
+
+    }
+
+    /**
+     * @param array $parameters
+     * @throws DatabaseException
+     * @return $this
+     */
+    public function execute(Array $parameters = array()) {
+        $this->getLogger()->debug("Bind params: " . print_r($parameters, true));
+
+        if (!$this->getStatement()) {
+            $this->getLogger()->alert("There is no statement object");
+            throw new DatabaseException("There is no statement object");
+        }
+
+        try {
+            foreach ($parameters as $name => $value) {
+                $this->getLogger()->debug("Binding $name with $value");
+                $this->getStatement()->bindValue($name, $value);
             }
+
+            $this->getLogger()->debug("Trying to execute the statement");
+
+            if ($this->getStatement()->execute()) {
+                $this->getLogger()->debug("Statement executed successfully");
+            } else {
+                $this->getLogger()->info("Statement execution failed");
+            }
+
+            $this->getLogger()->debug("Returning adapter object");
+            return $this;
+        } catch (PDOException $e) {
+            $this->getLogger()->alert($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode());
         }
     }
 
@@ -136,5 +171,11 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
 
     public function isConnected() {
         return $this->_connectionStatus;
+    }
+
+    private function getConnection() {
+        $this->connect();
+
+        return $this->_connection;
     }
 } 

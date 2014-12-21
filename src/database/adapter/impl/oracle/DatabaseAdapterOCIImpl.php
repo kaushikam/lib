@@ -56,7 +56,7 @@ class DatabaseAdapterOCIImpl implements IDatabaseAdapter {
             return true;
 
         $this->getLogger()->debug("Trying to connect");
-        $this->_connection = oci_connect($this->_dbConfig['user'],
+        $this->_connection = @oci_connect($this->_dbConfig['user'],
                                          $this->_dbConfig['password'],
                                          $this->getConnectionString());
 
@@ -96,13 +96,18 @@ class DatabaseAdapterOCIImpl implements IDatabaseAdapter {
         return $this->_connectionStatus;
     }
 
-
+    /**
+     * @param $sql
+     * @param array $options
+     * @throws DatabaseException
+     * @return $this
+     */
     public function prepare($sql, Array $options = array()) {
         $this->getLogger()->debug("Entering prepare method");
         $this->getLogger()->debug("SQL: " . $sql);
         $this->getLogger()->debug("Options: " . print_r($options, true));
 
-        $this->_statement = oci_parse($this->getConnection(), $sql);
+        $this->_statement = @oci_parse($this->getConnection(), $sql);
 
         if (!$this->_statement) {
             $e = oci_error($this->_connection);
@@ -114,9 +119,48 @@ class DatabaseAdapterOCIImpl implements IDatabaseAdapter {
         return $this;
     }
 
+    /**
+     * @param array $parameters
+     * @throws DatabaseException
+     * @return $this
+     */
+    public function execute(Array $parameters = array()) {
+        $this->getLogger()->debug("Bind params: " . print_r($parameters, true));
+
+        if (!$this->getStatement()) {
+            $this->getLogger()->alert("There is no statement object");
+            throw new DatabaseException("There is no statement object");
+        }
+
+        foreach ($parameters as $name => $value) {
+            $this->getLogger()->debug("Binding $name with $value");
+            @oci_bind_by_name($this->getStatement(), $name, $parameters[$value]);
+
+            if ($e = oci_error($this->getStatement())) {
+                 $this->getLogger()->alert($e['message']);
+                 throw new DatabaseException($e['message'], $e['code']);
+            }
+        }
+
+        $this->getLogger()->debug("Trying to execute the statement");
+        if (@oci_execute($this->getStatement())) {
+            $this->getLogger()->debug("Statement executed successfully");
+        } else {
+            $this->getLogger()->info("Statement execution failed");
+        }
+
+        if ($e = oci_error($this->getStatement())) {
+            $this->getLogger()->alert($e['message']);
+            throw new DatabaseException($e['message'], $e['code']);
+        }
+
+        $this->getLogger()->debug("Returning adapter object");
+        return $this;
+    }
+
 
     /**
-     * @return statement
+     * @return resource
      */
     public function getStatement() {
         return $this->_statement;

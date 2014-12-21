@@ -27,10 +27,13 @@ class DatabaseAdapterTestCase extends BaseMySQLPDOTestCase {
     }
 
     public function testConnectionWorksProperly() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
         $this->assertTrue($this->_adapter->connect());
     }
 
     public function testPrepareWorksFine() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
+
         $sql = "SELECT * FROM session";
         $adapter = $this->_adapter->prepare($sql);
         $this->assertEquals($this->_adapter, $adapter);
@@ -38,8 +41,19 @@ class DatabaseAdapterTestCase extends BaseMySQLPDOTestCase {
     }
 
     public function testIsConnectWorksFine() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
+
         $this->_adapter->connect();
         $this->assertTrue($this->_adapter->isConnected());
+    }
+
+    public function testExecuteWorksFine() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
+
+        $sql = "SELECT * FROM session WHERE id = :id";
+        $bind = array(':id' => 1);
+        $adapter = $this->_adapter->prepare($sql)->execute($bind);
+        $this->assertEquals($this->_adapter, $adapter);
     }
 
     protected function tearDown() {
