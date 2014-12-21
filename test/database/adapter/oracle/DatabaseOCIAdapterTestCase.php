@@ -2,22 +2,22 @@
 /**
  * Created by PhpStorm.
  * User: kaushik
- * Date: 20/12/14
- * Time: 2:30 PM
+ * Date: 21/12/14
+ * Time: 6:35 PM
  */
 
-namespace kaushikam\lib\test\database\adapter\mysql;
+namespace kaushikam\lib\test\database\adapter\oracle;
 
 
 use kaushikam\lib\database\adapter\IDatabaseAdapter;
-use kaushikam\lib\test\BaseMySQLPDOTestCase;
-use kaushikam\lib\test\BaseTestCase;
+use kaushikam\lib\test\BaseOracleTestCase;
 
-class DatabaseAdapterTestCase extends BaseMySQLPDOTestCase {
+class DatabaseOCIAdapterTestCase extends BaseOracleTestCase {
+
     /**
      * @var IDatabaseAdapter
      */
-    protected $_adapter;
+    private $_adapter;
 
     protected function setUp() {
         parent::setUp();
@@ -34,7 +34,7 @@ class DatabaseAdapterTestCase extends BaseMySQLPDOTestCase {
         $sql = "SELECT * FROM session";
         $adapter = $this->_adapter->prepare($sql);
         $this->assertEquals($this->_adapter, $adapter);
-        $this->assertInstanceOf('\PDOStatement', $adapter->getStatement());
+        $this->assertNotNull($this->_adapter->getStatement());
     }
 
     public function testIsConnectWorksFine() {
@@ -46,4 +46,4 @@ class DatabaseAdapterTestCase extends BaseMySQLPDOTestCase {
         if ($this->_adapter->isConnected())
             $this->_adapter->disconnect();
     }
-}
+} 

@@ -21,12 +21,22 @@ class TestLibraryConfiguration extends AbstractConfiguration implements ITestLib
         $data = array(
             'lib.test.log.directory' => __DIR__ . '/../../log',
             'lib.test.log.level'  => LogLevel::DEBUG,
-            'lib.test.db.db_name' => 'session',
-            'lib.test.db.user' => 'root',
-            'lib.test.db.password' => 'redhat',
-            'lib.test.db.host' => 'localhost',
+            'lib.test.db.mysql.dbName' => 'session',
+            'lib.test.db.mysql.user' => 'root',
+            'lib.test.db.mysql.password' => 'redhat',
+            'lib.test.db.mysql.host' => 'localhost',
+            'lib.test.db.mysql.dsn' => "mysql:dbname=%s;host=%s",
+            'lib.test.db.oracle.user' => 'kaushik',
+            'lib.test.db.oracle.password' => 'redhat',
+            'lib.test.db.oracle.host' => 'localhost',
+            'lib.test.db.oracle.port' => '1521',
+            'lib.test.db.oracle.serviceName' => 'xe',
+            'lib.test.db.oracle.dsn' => "oci:dbname=//%s:%u/%s",
+            'lib.test.db.oracle.connectionString' => "//%s:%u/%s",
+            'lib.test.di.config.oracle.path' => __DIR__ . '/../../di',
+            'lib.test.di.config.oracle.fileName' => 'oracle_config.php',
             'lib.test.di.config.path' => __DIR__ . '/../../di',
-            'lib.test.di.config.filename' => 'config.php'
+            'lib.test.di.config.fileName' => 'config.php'
         );
 
         foreach ($data as $name => $value) {
@@ -34,25 +44,66 @@ class TestLibraryConfiguration extends AbstractConfiguration implements ITestLib
         }
     }
 
-    public function getDbName()
+    public function getMysqlDbName()
     {
-        return $this->get('lib.test.db.db_name');
+        return $this->get('lib.test.db.mysql.dbName');
     }
 
-    public function getDbUser()
+    public function getMysqlUser()
     {
-        return $this->get('lib.test.db.user');
+        return $this->get('lib.test.db.mysql.user');
     }
 
-    public function getDbPasword()
+    public function getMysqlPasword()
     {
-        return $this->get('lib.test.db.password');
+        return $this->get('lib.test.db.mysql.password');
     }
 
-    public function getDbHost()
+    public function getMysqlHost()
     {
-        return $this->get('lib.test.db.host');
+        return $this->get('lib.test.db.mysql.host');
     }
+
+    public function getOracleHost()
+    {
+        return $this->get('lib.test.db.oracle.host');
+    }
+
+    public function getOraclePort()
+    {
+        return $this->get('lib.test.db.oracle.port');
+    }
+
+    public function getOracleUser()
+    {
+        return $this->get('lib.test.db.oracle.user');
+    }
+
+    public function getOraclePassword()
+    {
+        return $this->get('lib.test.db.oracle.password');
+    }
+
+    public function getOracleServiceName()
+    {
+        return $this->get('lib.test.db.oracle.serviceName');
+    }
+
+    public function getMysqlDSN()
+    {
+        return $this->get('lib.test.db.mysql.dsn');
+    }
+
+    public function getOracleDSN()
+    {
+        return $this->get('lib.test.db.oracle.dsn');
+    }
+
+    public function getOracleConnectionString()
+    {
+        return $this->get('lib.test.db.oracle.connectionString');
+    }
+
 
     public function getLogDirectory()
     {
@@ -66,6 +117,11 @@ class TestLibraryConfiguration extends AbstractConfiguration implements ITestLib
 
     public function getDiConfig() {
         return $this->get('lib.test.di.config.path') . '/' .
-               $this->get('lib.test.di.config.filename');
+               $this->get('lib.test.di.config.fileName');
+    }
+
+    public function getOracleDiConfig() {
+        return $this->get('lib.test.di.config.oracle.path') . '/' .
+               $this->get('lib.test.di.config.oracle.fileName');
     }
 } 

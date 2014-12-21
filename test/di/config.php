@@ -8,10 +8,13 @@
 
 require __DIR__ . '/../../vendor/autoload.php';
 
+use \kaushikam\lib\database\adapter\IDatabaseConfig;
+use \kaushikam\lib\config\Config;
+
 /**
- * @var \kaushikam\lib\database\adapter\IDatabaseConfig
+ * @var IDatabaseConfig
  */
-$config = \kaushikam\lib\config\Config::getConfig();
+$config = Config::getConfig();
 
 return array(
     'Psr\Log\LoggerInterface' => array(
@@ -25,10 +28,10 @@ return array(
     'kaushikam\lib\database\adapter\IDatabaseAdapter' => array(
         'class' => 'kaushikam\lib\database\adapter\impl\mysql\DatabaseAdapterImpl',
         'params' => array(
-            'dbName' => $config->getDbName(),
-            'host' => $config->getDbHost(),
-            'user' => $config->getDbUser(),
-            'password' => $config->getDbPasword()
+            'dbName' => $config->getMysqlDbName(),
+            'host' => $config->getMysqlHost(),
+            'user' => $config->getMysqlUser(),
+            'password' => $config->getMysqlPasword()
         )
     )
 );

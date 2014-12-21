@@ -10,11 +10,9 @@ namespace kaushikam\lib\test\config;
 
 
 use kaushikam\lib\config\Config;
-use kaushikam\lib\test\BaseTestCase;
-use kaushikam\lib\test\config\impl\TestConfigurationImpl;
 use kaushikam\lib\test\config\impl\TestConfigurationImpl2;
 
-class ConfigureTestCase extends BaseTestCase {
+class ConfigureTestCase extends \PHPUnit_Framework_TestCase {
     /**
      * @var ITestConfiguration
      */
@@ -24,7 +22,8 @@ class ConfigureTestCase extends BaseTestCase {
     protected function setUp() {
         Config::configureInstance(new TestConfigurationImpl2());
         $this->_configuration = Config::getConfig();
-            parent::setUp();
+
+        parent::setUp();
     }
 
     public function testGettingValueFromConfig() {

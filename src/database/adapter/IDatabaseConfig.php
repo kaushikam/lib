@@ -12,10 +12,10 @@ namespace kaushikam\lib\database\adapter;
 use kaushikam\lib\config\IConfiguration;
 
 interface IDatabaseConfig extends IConfiguration {
-    public function getDbName();
-    public function getDbUser();
-    public function getDbPasword();
-    public function getDbHost();
+    public function getMysqlDbName();
+    public function getMysqlUser();
+    public function getMysqlPasword();
+    public function getMysqlHost();
     public function getLogDirectory();
     public function getLogLevel();
 } 

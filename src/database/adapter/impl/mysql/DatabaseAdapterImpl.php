@@ -8,7 +8,6 @@
 
 namespace kaushikam\lib\database\adapter\impl\mysql;
 
-
 use kaushikam\lib\config\IConfiguration;
 use kaushikam\lib\database\adapter\IDatabaseAdapter;
 use kaushikam\lib\database\exception\DatabaseException;
@@ -17,12 +16,6 @@ use \PDOException;
 use Psr\Log\LoggerInterface;
 
 class DatabaseAdapterImpl implements IDatabaseAdapter {
-
-    /**
-     * @var IConfiguration
-     */
-    protected $_config;
-
     /**
      * @var array
      */
@@ -67,7 +60,6 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
         $result = true;
 
         if ($this->_connection) {
-            $this->_connectionStatus = true;
             return $result;
         }
 
@@ -84,6 +76,7 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
 
             $this->getLogger()->debug("Connection successful");
         } catch (PDOException $e) {
+            $this->_connectionStatus = false;
             $this->getLogger()->alert($e->getMessage());
             throw new DatabaseException($e->getMessage(), $e->getCode());
         }

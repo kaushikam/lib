@@ -13,7 +13,7 @@ use kaushikam\lib\test\BaseTestCase;
 use rg\injektor\Configuration;
 use rg\injektor\DependencyInjectionContainer;
 
-class ConfigureWithDITestCase extends BaseTestCase {
+class ConfigureWithDITestCase extends \PHPUnit_Framework_TestCase {
 
     protected $_configuration;
 
