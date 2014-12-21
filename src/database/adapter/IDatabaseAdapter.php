@@ -24,9 +24,6 @@ interface IDatabaseAdapter {
 
     public function prepare($sql, Array $options = array());
 
-    /**
-     * @return \PDOStatement
-     */
     public function getStatement();
 
     /**
