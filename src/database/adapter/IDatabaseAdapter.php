@@ -36,7 +36,12 @@ interface IDatabaseAdapter {
      * @throws DatabaseException
      * @return $this
      */
-    public function execute(Array $parameters = array());
+    public function execute(Array &$parameters = array());
+
+    /**
+     * @return array|bool
+     */
+    public function fetch();
 
     public function getStatement();
 

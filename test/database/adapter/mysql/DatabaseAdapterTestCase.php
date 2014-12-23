@@ -50,13 +50,29 @@ class DatabaseAdapterTestCase extends BaseMySQLPDOTestCase {
     public function testExecuteWorksFine() {
         $this->getLogger()->debug("******************" . __METHOD__ . "****************");
 
-        $sql = "SELECT * FROM session WHERE id = :id";
-        $bind = array(':id' => 1);
-        $adapter = $this->_adapter->prepare($sql)->execute($bind);
-        $this->assertEquals($this->_adapter, $adapter);
+        $sql = "INSERT INTO session (id, data, last_accessed) VALUES (:id, :data, :lastAccessed)";
+        $bind = array(':id' => '1',
+            ':data' => 'kaushik is good',
+            ':lastAccessed' => '23-dec-2014');
+        $this->_adapter->prepare($sql)->execute($bind);
+        $stmt = $this->getConnection()->getConnection()->prepare("SELECT * FROM session");
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $this->assertEquals($result['id'], $bind[':id']);
+
+        $sql = "SELECT * FROM session WHERE data like :data";
+        $bind = array(":data" => '%kaushik%');
+        $actual = $this->_adapter->prepare($sql)->execute($bind)->fetch();
+        $stmt = $this->getConnection()->getConnection()->prepare("SELECT * FROM session WHERE data like :data");
+        $stmt->execute($bind);
+        $expected = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $this->assertEquals($expected, $actual);
     }
 
     protected function tearDown() {
+        $stmt = $this->getConnection()->getConnection()->prepare("TRUNCATE TABLE session");
+        $stmt->execute();
+
         if ($this->_adapter->isConnected())
             $this->_adapter->disconnect();
     }

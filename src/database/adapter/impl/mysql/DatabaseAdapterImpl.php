@@ -120,7 +120,7 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
      * @throws DatabaseException
      * @return $this
      */
-    public function execute(Array $parameters = array()) {
+    public function execute(Array &$parameters = array()) {
         $this->getLogger()->debug("Bind params: " . print_r($parameters, true));
 
         if (!$this->getStatement()) {
@@ -149,6 +149,28 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
             throw new DatabaseException($e->getMessage(), $e->getCode());
         }
     }
+
+    /**
+     * @return array|bool
+     */
+    public function fetch()
+    {
+        if (!$this->getStatement()) {
+            $this->getLogger()->debug("There is no statement object");
+            throw new DatabaseException("There is no statment object");
+        }
+
+        try {
+            $result = $this->getStatement()->fetch(PDO::FETCH_ASSOC);
+            $this->getLogger()->debug("Successfully returning resultant array");
+            $this->getLogger()->debug("Result: " . print_r($result, true));
+            return $result;
+        } catch (PDOException $e) {
+            $this->getLogger()->alert($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode());
+        }
+    }
+
 
     public function getStatement() {
         return $this->_statement;

@@ -24,6 +24,7 @@ class DatabaseOCIAdapterTestCase extends BaseOracleTestCase {
 
         $this->_adapter = $this->getDic()
                                ->getInstanceOfClass('kaushikam\lib\database\adapter\IDatabaseAdapter');
+
     }
 
     public function testConnectionWorksProperly() {
@@ -35,7 +36,7 @@ class DatabaseOCIAdapterTestCase extends BaseOracleTestCase {
     public function testPrepareWorksFine() {
         $this->getLogger()->debug("******************" . __METHOD__ . "****************");
 
-        $sql = "SELECT * FROM online_consumer";
+        $sql = "SELECT * FROM sessions";
         $adapter = $this->_adapter->prepare($sql);
         $this->assertEquals($this->_adapter, $adapter);
         $this->assertNotNull($this->_adapter->getStatement());
@@ -51,22 +52,33 @@ class DatabaseOCIAdapterTestCase extends BaseOracleTestCase {
     public function testExecuteWorksProperly() {
         $this->getLogger()->debug("******************" . __METHOD__ . "****************");
 
-        $sql = "SELECT * FROM online_consumer WHERE consumer_id = :consumerId";
-        $bind = array(':consumerId' => 2114101166);
-        $adapter = $this->_adapter->prepare($sql)->execute($bind);
-        $this->assertEquals($this->_adapter, $adapter);
+        $sql = 'INSERT INTO sessions (id, data, last_accessed) VALUES (:id, :data, :lastAccessed)';
+        $bind = array(':id' => '1',
+                      ':data' => 'kaushik is good',
+                      ':lastAccessed' => '23-dec-2014');
+        $this->_adapter->prepare($sql)->execute($bind);
+        $stmt = $this->getConnection()->getConnection()->prepare("SELECT * FROM sessions");
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $this->assertEquals($result['ID'], $bind[':id']);
 
         $this->_adapter->disconnect();
 
         $this->_adapter->connect();
 
-        $sql = "SELECT * FROM online_consumer WHERE cons_pwd like :password";
-        $bind = array(":password" => '%kaushikistoo916good%');
-        $adapter = $this->_adapter->prepare($sql)->execute($bind);
-        $this->assertEquals($this->_adapter, $adapter);
+        $sql = "SELECT * FROM sessions WHERE data like :data";
+        $bind = array(":data" => '%kaushik%');
+        $actual = $this->_adapter->prepare($sql)->execute($bind)->fetch();
+        $stmt = $this->getConnection()->getConnection()->prepare("SELECT * FROM sessions WHERE data like :data");
+        $stmt->execute($bind);
+        $expected = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $this->assertEquals($expected, $actual);
     }
 
     protected function tearDown() {
+        $stmt = $this->getConnection()->getConnection()->prepare("TRUNCATE TABLE sessions");
+        $stmt->execute();
+
         if ($this->_adapter->isConnected())
             $this->_adapter->disconnect();
     }

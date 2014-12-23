@@ -124,7 +124,7 @@ class DatabaseAdapterOCIImpl implements IDatabaseAdapter {
      * @throws DatabaseException
      * @return $this
      */
-    public function execute(Array $parameters = array()) {
+    public function execute(Array &$parameters = array()) {
         $this->getLogger()->debug("Bind params: " . print_r($parameters, true));
 
         if (!$this->getStatement()) {
@@ -134,7 +134,7 @@ class DatabaseAdapterOCIImpl implements IDatabaseAdapter {
 
         foreach ($parameters as $name => $value) {
             $this->getLogger()->debug("Binding $name with $value");
-            @oci_bind_by_name($this->getStatement(), $name, $parameters[$value]);
+            @oci_bind_by_name($this->getStatement(), $name, $parameters[$name]);
 
             if ($e = oci_error($this->getStatement())) {
                  $this->getLogger()->alert($e['message']);
@@ -156,6 +156,27 @@ class DatabaseAdapterOCIImpl implements IDatabaseAdapter {
 
         $this->getLogger()->debug("Returning adapter object");
         return $this;
+    }
+
+    /**
+     * @return array|bool
+     */
+    public function fetch()
+    {
+        if (!$this->getStatement()) {
+            $this->getLogger()->debug("There is no statement object");
+            throw new DatabaseException("There is no statement object");
+        }
+
+        $result = @oci_fetch_assoc($this->getStatement());
+        if($e = oci_error($this->getStatement())) {
+            $this->getLogger()->alert($e['message']);
+            throw new DatabaseException($e['message'], $e['code']);
+        }
+
+        $this->getLogger()->debug("Successfully returning resultant array");
+        $this->getLogger()->debug("Result: " . print_r($result, true));
+        return $result;
     }
 
 
