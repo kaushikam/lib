@@ -80,12 +80,12 @@ class DatabaseAdapterOCIImpl implements IDatabaseAdapter {
 
         if ($this->_statement) {
             $this->getLogger()->debug("Statement exist, hence freeing it");
-            ocifreestatement($this->_statement);
+            @ocifreestatement($this->_statement);
         }
 
         if ($this->isConnected()) {
             $this->getLogger()->debug("Now closing connection");
-            oci_close($this->_connection);
+            @oci_close($this->_connection);
         }
     }
 
@@ -133,8 +133,18 @@ class DatabaseAdapterOCIImpl implements IDatabaseAdapter {
         }
 
         foreach ($parameters as $name => $value) {
-            $this->getLogger()->debug("Binding $name with $value");
-            @oci_bind_by_name($this->getStatement(), $name, $parameters[$name]);
+            if (is_array($value)) {
+                $this->getLogger()->debug("Binding $name with " . print_r($value, true));
+                @oci_bind_by_name($this->getStatement(),
+                    $name,
+                    $parameters[$name]['value'],
+                    $parameters[$name]['length'],
+                    $parameters[$name]['type']);
+            } else {
+                $this->getLogger()->debug("Binding $name with $value");
+                @oci_bind_by_name($this->getStatement(), $name, $parameters[$name]);
+            }
+
 
             if ($e = oci_error($this->getStatement())) {
                  $this->getLogger()->alert($e['message']);
@@ -177,6 +187,64 @@ class DatabaseAdapterOCIImpl implements IDatabaseAdapter {
         $this->getLogger()->debug("Successfully returning resultant array");
         $this->getLogger()->debug("Result: " . print_r($result, true));
         return $result;
+    }
+
+    /**
+     * @return array | bool
+     */
+    public function fetchAll()
+    {
+        if (!$this->getStatement()) {
+            $this->getLogger()->debug("There is no statement object");
+            throw new DatabaseException("There is no statement object");
+        }
+
+        $result = array();
+        $numOfRows = @oci_fetch_all($this->getStatement(),
+                            $result, 0, -1,
+                            OCI_FETCHSTATEMENT_BY_ROW + OCI_ASSOC);
+        if($e = oci_error($this->getStatement())) {
+            $this->getLogger()->alert($e['message']);
+            throw new DatabaseException($e['message'], $e['code']);
+        }
+
+        if ($numOfRows >= 0) {
+            $this->getLogger()->debug("Successfully returning resultant array");
+            $this->getLogger()->debug("Result: " . print_r($result, true));
+            return $result;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $table
+     * @param array $bind
+     * @param string $id
+     * @param null $idType
+     * @return mixed
+     */
+    public function insert($table, Array $bind, $id = 'id', $idType = null)
+    {
+        $this->getLogger()->debug("Table name is: $table");
+        $this->getLogger()->debug("Bind: " . print_r($bind, true));
+        $this->getLogger()->debug("ID: $id");
+
+        if (is_null($idType))
+            $idType = SQLT_INT;
+        $this->getLogger()->debug("ID type: $idType");
+
+        foreach ($bind as $name => $value) {
+            unset ($bind[$name]);
+            $bind[':' . $name] = $value;
+        }
+
+        $sql = "INSERT INTO $table VALUES (" . implode(', ', array_keys($bind)) . ") RETURNING $id INTO :returnId";
+        $bind[':returnId'] = array ('value' => null, 'length' => -1, 'type' => $idType);
+        $this->prepare($sql)->execute($bind);
+
+        $this->getLogger()->info("New row created with $id: " . $bind[':returnId']['value']);
+        return $bind[':returnId']['value'];
     }
 
 

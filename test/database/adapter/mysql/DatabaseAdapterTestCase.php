@@ -11,7 +11,6 @@ namespace kaushikam\lib\test\database\adapter\mysql;
 
 use kaushikam\lib\database\adapter\IDatabaseAdapter;
 use kaushikam\lib\test\BaseMySQLPDOTestCase;
-use kaushikam\lib\test\BaseTestCase;
 
 class DatabaseAdapterTestCase extends BaseMySQLPDOTestCase {
     /**
@@ -59,6 +58,16 @@ class DatabaseAdapterTestCase extends BaseMySQLPDOTestCase {
         $stmt->execute();
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         $this->assertEquals($result['id'], $bind[':id']);
+    }
+
+    public function testFetchWorksOkay() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
+
+        $sql = "INSERT INTO session (id, data, last_accessed) VALUES (:id, :data, :lastAccessed)";
+        $bind = array(':id' => '1',
+            ':data' => 'kaushik is good',
+            ':lastAccessed' => '23-dec-2014');
+        $this->_adapter->prepare($sql)->execute($bind);
 
         $sql = "SELECT * FROM session WHERE data like :data";
         $bind = array(":data" => '%kaushik%');
@@ -67,6 +76,58 @@ class DatabaseAdapterTestCase extends BaseMySQLPDOTestCase {
         $stmt->execute($bind);
         $expected = $stmt->fetch(\PDO::FETCH_ASSOC);
         $this->assertEquals($expected, $actual);
+    }
+
+    public function testFetchReturnsFalseOnFailure() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
+
+        $sql = "SELECT * FROM session WHERE data like :data";
+        $bind = array(":data" => '%kaushik%');
+        $actual = $this->_adapter->prepare($sql)->execute($bind)->fetch();
+        $this->assertFalse($actual);
+    }
+
+    public function testFetchAllReturnsAllRows() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
+
+        $sql = "INSERT INTO session (id, data, last_accessed) VALUES (:id, :data, :lastAccessed)";
+        $bind = array(':id' => '1',
+            ':data' => 'kaushik is good',
+            ':lastAccessed' => '23-dec-2014');
+        $this->_adapter->prepare($sql)->execute($bind);
+
+        $sql = "INSERT INTO session (id, data, last_accessed) VALUES (:id, :data, :lastAccessed)";
+        $bind = array(':id' => '2',
+            ':data' => 'kaushik is too good',
+            ':lastAccessed' => '23-dec-2014');
+        $this->_adapter->prepare($sql)->execute($bind);
+
+        $sql = "SELECT * FROM session";
+        $actual = $this->_adapter->prepare($sql)->execute()->fetchAll();
+
+        $stmt = $this->getConnection()->getConnection()->prepare($sql);
+        $stmt->execute();
+        $expected = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testInsertWorksFineByReturningId() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
+
+        $bind = array(
+            'id' => '1',
+            'data' => 'kaushik is too good',
+            'last_accessed' => '24-dec-2014'
+        );
+        $result = $this->_adapter->insert('session', $bind);
+        $this->assertEquals('1', $result);
+
+        $sql = "SELECT * FROM session WHERE id = :id";
+        $stmt = $this->getConnection()->getConnection()->prepare($sql);
+        $stmt->execute(array(':id' => '1'));
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $this->assertEquals('1', $row['id']);
     }
 
     protected function tearDown() {

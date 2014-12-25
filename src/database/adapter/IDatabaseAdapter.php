@@ -43,6 +43,23 @@ interface IDatabaseAdapter {
      */
     public function fetch();
 
+    /**
+     * @return array | bool
+     */
+    public function fetchAll();
+
+    /**
+     * @param $table
+     * @param array $bind
+     * @param string $id
+     * @param null $idType
+     * @return mixed
+     */
+    public function insert($table, Array $bind, $id = 'id', $idType = null);
+
+    /**
+     * @return resource
+     */
     public function getStatement();
 
     /**
@@ -50,6 +67,10 @@ interface IDatabaseAdapter {
      */
     public function getLogger();
 
+    /**
+     * @param LoggerInterface $logger
+     * @return void
+     */
     public function setLogger(LoggerInterface $logger);
 
     /**

@@ -8,7 +8,6 @@
 
 namespace kaushikam\lib\database\adapter\impl\mysql;
 
-use kaushikam\lib\config\IConfiguration;
 use kaushikam\lib\database\adapter\IDatabaseAdapter;
 use kaushikam\lib\database\exception\DatabaseException;
 use \PDO;
@@ -78,7 +77,7 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
         } catch (PDOException $e) {
             $this->_connectionStatus = false;
             $this->getLogger()->alert($e->getMessage());
-            throw new DatabaseException($e->getMessage(), $e->getCode());
+            throw new DatabaseException($e->getMessage());
         }
 
         return $result;
@@ -109,7 +108,7 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
             return $this;
         } catch (PDOException $e) {
             $this->getLogger()->alert($e->getMessage());
-            throw new DatabaseException($e->getMessage(), $e->getCode());
+            throw new DatabaseException($e->getMessage());
         }
 
 
@@ -146,7 +145,7 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
             return $this;
         } catch (PDOException $e) {
             $this->getLogger()->alert($e->getMessage());
-            throw new DatabaseException($e->getMessage(), $e->getCode());
+            throw new DatabaseException($e->getMessage());
         }
     }
 
@@ -167,8 +166,63 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
             return $result;
         } catch (PDOException $e) {
             $this->getLogger()->alert($e->getMessage());
-            throw new DatabaseException($e->getMessage(), $e->getCode());
+            throw new DatabaseException($e->getMessage());
         }
+    }
+
+    /**
+     * @return array | bool
+     */
+    public function fetchAll()
+    {
+        if (!$this->getStatement()) {
+            $this->getLogger()->debug("There is no statement object");
+            throw new DatabaseException("There is no statment object");
+        }
+
+        try {
+            $result = $this->getStatement()->fetchAll(PDO::FETCH_ASSOC);
+            $this->getLogger()->debug("Successfully returning resultant array");
+            $this->getLogger()->debug("Result: " . print_r($result, true));
+            return $result;
+        } catch (PDOException $e) {
+            $this->getLogger()->alert($e->getMessage());
+            throw new DatabaseException($e->getMessage());
+        }
+    }
+
+    /**
+     * @param $table
+     * @param array $bind
+     * @param string $id
+     * @param null $idType
+     * @return mixed
+     */
+    public function insert($table, Array $bind, $id = 'id', $idType = null)
+    {
+        $this->getLogger()->debug("Table name is: $table");
+        $this->getLogger()->debug("Bind: " . print_r($bind, true));
+        $this->getLogger()->debug("ID: $id");
+
+        foreach ($bind as $name => $value) {
+            unset ($bind[$name]);
+            if ($name == $id)
+                $bind['LAST_INSERT_ID(:' . $name . ')'] = $value;
+            else
+                $bind[':' . $name] = $value;
+        }
+
+        $sql = "INSERT INTO $table VALUES (" . implode(', ', array_keys($bind)) . ")";
+        if (isset($bind['LAST_INSERT_ID(:' . $id . ')'])) {
+            $idValue = $bind['LAST_INSERT_ID(:' . $id . ')'];
+            unset($bind['LAST_INSERT_ID(:' . $id . ')']);
+            $bind[':' . $id] = $idValue;
+        }
+        $this->prepare($sql)->execute($bind);
+
+        $this->getLogger()->info("New row created with $id: " .
+            $this->getConnection()->lastInsertId($id));
+        return $this->getConnection()->lastInsertId($id);
     }
 
 
