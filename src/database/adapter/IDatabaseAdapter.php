@@ -66,7 +66,16 @@ interface IDatabaseAdapter {
      * @return mixed
      * @throws DatabaseException
      */
-    public function update($table, Array $bind, $where = array(), $boolOperator = ' AND ');
+    public function update($table, Array $bind, Array $where = array(), $boolOperator = ' AND ');
+
+    /**
+     * @param $table
+     * @param array $where
+     * @param string $boolOperator
+     * @return bool
+     * @throws DatabaseException
+     */
+    public function delete($table, Array $where  = array(), $boolOperator = ' AND ');
 
     /**
      * @return resource

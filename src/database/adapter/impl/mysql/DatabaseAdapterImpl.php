@@ -233,7 +233,7 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
      * @return mixed|void
      * @throws DatabaseException
      */
-    public function update($table, Array $bind, $where = array(), $boolOperator = ' AND ')
+    public function update($table, Array $bind, Array $where = array(), $boolOperator = ' AND ')
     {
         $this->getLogger()->debug("Table name is: $table");
         $this->getLogger()->debug("Bind: " . print_r($bind, true));
@@ -270,6 +270,46 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
         return $affectedRows;
     }
 
+    /**
+     * @param $table
+     * @param array $where
+     * @param string $boolOperator
+     * @return bool
+     * @throws DatabaseException
+     */
+    public function delete($table, Array $where = array(), $boolOperator = ' AND ')
+    {
+        $this->getLogger()->debug("Table: $table");
+        $this->getLogger()->debug("Conditions: " . print_r($where, true));
+        $this->getLogger()->debug("Bool Op: $boolOperator");
+
+        $conditions = array();
+        if ($where) {
+            foreach ($where as $lhs => $rhs) {
+                unset($where[$lhs]);
+                $where[':c'.$lhs] = $rhs['value'];
+                $conditions[] = $lhs . " " . $rhs['op'] . " :c" . $lhs;
+            }
+        }
+
+        $sql = "DELETE FROM $table " . ((!empty($conditions)) ?
+                " WHERE " . implode($boolOperator, $conditions) : "");
+
+        $this->prepare($sql)->execute($where);
+
+        if (($affectedRows = $this->numberOfAffectedRows()) > 0) {
+            $this->getLogger()->info("Update completed successfully by updating $affectedRows");
+        } else {
+            $this->getLogger()->info("Update did not update anything");
+        }
+
+        return $affectedRows;
+    }
+
+    /**
+     * @return int
+     * @throws DatabaseException
+     */
     private function numberOfAffectedRows() {
         try {
             return $this->getStatement()->rowCount();

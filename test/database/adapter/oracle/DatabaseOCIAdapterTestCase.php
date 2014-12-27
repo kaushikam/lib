@@ -161,6 +161,25 @@ class DatabaseOCIAdapterTestCase extends BaseOracleTestCase {
         $this->assertEquals("Kaushik is tooooo goood", $row['DATA']);
     }
 
+    public function testDeleteFunctionDeletesRows() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
+
+        $bind = array(
+            'id' => '1',
+            'data' => 'kaushik is too good',
+            'last_accessed' => '24-dec-2014'
+        );
+        $result = $this->_adapter->insert('sessions', $bind);
+
+        $where = array(
+            'id' => array('op' => '=', 'value' => '1'),
+            'last_accessed' => array('op' => '=', 'value' => '24-dec-2014')
+        );
+        $affectedRows = $this->_adapter->delete('sessions', $where);
+
+        $this->assertEquals(1, $affectedRows);
+    }
+
     protected function tearDown() {
         $stmt = $this->getConnection()->getConnection()->prepare("TRUNCATE TABLE sessions");
         $stmt->execute();

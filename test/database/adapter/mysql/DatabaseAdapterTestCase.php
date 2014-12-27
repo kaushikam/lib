@@ -160,6 +160,25 @@ class DatabaseAdapterTestCase extends BaseMySQLPDOTestCase {
         $this->assertEquals("Kaushik is tooooo goood", $row['data']);
     }
 
+    public function testDeleteFunctionDeletesRows() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
+
+        $bind = array(
+            'id' => '1',
+            'data' => 'kaushik is too good',
+            'last_accessed' => '2014-12-24'
+        );
+        $result = $this->_adapter->insert('session', $bind);
+
+        $where = array(
+            'id' => array('op' => '=', 'value' => '1'),
+            'last_accessed' => array('op' => '=', 'value' => '2014-12-24')
+        );
+        $affectedRows = $this->_adapter->delete('session', $where);
+
+        $this->assertEquals(1, $affectedRows);
+    }
+
     protected function tearDown() {
         $stmt = $this->getConnection()->getConnection()->prepare("TRUNCATE TABLE session");
         $stmt->execute();
