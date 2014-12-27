@@ -362,7 +362,7 @@ class DatabaseAdapterOCIImpl implements IDatabaseAdapter {
             }
         }
 
-        $sql = "SELECT " . implode(", ", $needed) . " FROM " .
+        $sql = "SELECT " . ((!empty($needed)) ? implode(", ", $needed) : " * ") . " FROM " .
             $table . ((!empty($where)) ? " WHERE " . implode($boolOperator, $conditions) : " ") .
             ((!empty($orders)) ? " ORDER BY " . implode(", ", $orders) : " ");
 
