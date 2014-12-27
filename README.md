@@ -1,1 +1,1 @@
-**Libraries for My projects (Studying also)**
+**Libraries for My projects (Studying purpose)**
