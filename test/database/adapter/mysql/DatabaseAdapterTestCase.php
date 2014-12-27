@@ -179,6 +179,37 @@ class DatabaseAdapterTestCase extends BaseMySQLPDOTestCase {
         $this->assertEquals(1, $affectedRows);
     }
 
+    public function testSelectWorksProperly() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
+
+        $bind = array(
+            'id' => '1',
+            'data' => 'kaushik is too good',
+            'last_accessed' => '2014-12-24'
+        );
+        $this->_adapter->insert('session', $bind);
+
+        $bind = array(
+            'id' => '2',
+            'data' => 'kaushik is too much good',
+            'last_accessed' => '2014-12-24'
+        );
+        $this->_adapter->insert('session', $bind);
+
+        $needed = array('id', 'data');
+        $where = array(
+            'last_accessed' => array('value' => '2014-12-24', 'op' => '='),
+            'data' => array('value' => '%kaushik%', 'op' => 'like')
+        );
+        $order = array(
+            'id' => 'DESC'
+        );
+
+        $rows = $this->_adapter->select('session', $needed, $where, $order);
+        $this->assertEquals(2, count($rows));
+        $this->assertEquals("2", $rows[0]['id']);
+    }
+
     protected function tearDown() {
         $stmt = $this->getConnection()->getConnection()->prepare("TRUNCATE TABLE session");
         $stmt->execute();

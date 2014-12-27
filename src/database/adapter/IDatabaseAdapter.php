@@ -78,6 +78,18 @@ interface IDatabaseAdapter {
     public function delete($table, Array $where  = array(), $boolOperator = ' AND ');
 
     /**
+     * @param $table
+     * @param array $needed
+     * @param array $where
+     * @param array $orderItems
+     * @param string $boolOperator
+     * @return array
+     * @throws DatabaseException
+     */
+    public function select($table, Array $needed = array(), Array $where = array(),
+                           Array $orderItems = array(), $boolOperator = ' AND ');
+
+    /**
      * @return resource
      */
     public function getStatement();

@@ -307,6 +307,51 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
     }
 
     /**
+     * @param $table
+     * @param array $needed
+     * @param array $where
+     * @param array $orderItems
+     * @param string $boolOperator
+     * @return array|void
+     * @throws DatabaseException
+     */
+    public function select($table, Array $needed = array(), Array $where = array(),
+                           Array $orderItems = array(), $boolOperator = ' AND ')
+    {
+        $this->getLogger()->debug("Table: $table");
+        $this->getLogger()->debug("Columns: " . print_r($needed, true));
+        $this->getLogger()->debug("Conditions: " . print_r($where, true));
+        $this->getLogger()->debug("Order by columns: " . print_r($orderItems, true));
+        $this->getLogger()->debug("Bool OP: $boolOperator");
+
+        $conditions = array();
+        if ($where) {
+            foreach ($where as $lhs => $rhs) {
+                unset($where[$lhs]);
+                $where[':c'.$lhs] = $rhs['value'];
+                $conditions[] = $lhs . " " . $rhs['op'] . " :c" . $lhs;
+            }
+        }
+
+        $orders = array();
+        if ($orderItems) {
+            foreach ($orderItems as $name => $order) {
+                $orders[] = $name . " " . $order;
+            }
+        }
+
+        $sql = "SELECT " . implode(", ", $needed) . " FROM " .
+            $table . ((!empty($where)) ? " WHERE " . implode($boolOperator, $conditions) : " ") .
+            ((!empty($orders)) ? " ORDER BY " . implode(", ", $orders) : " ");
+
+        $rows = $this->prepare($sql)->execute($where)->fetchAll();
+        if ($rows)
+            return $rows;
+        else
+            $this->getLogger()->info("SQL did not fetch data");
+    }
+
+    /**
      * @return int
      * @throws DatabaseException
      */
@@ -317,7 +362,6 @@ class DatabaseAdapterImpl implements IDatabaseAdapter {
             throw new DatabaseException($e->getMessage());
         }
     }
-
 
     public function getStatement() {
         return $this->_statement;

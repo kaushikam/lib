@@ -180,6 +180,37 @@ class DatabaseOCIAdapterTestCase extends BaseOracleTestCase {
         $this->assertEquals(1, $affectedRows);
     }
 
+    public function testSelectWorksProperly() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
+
+        $bind = array(
+            'id' => '1',
+            'data' => 'kaushik is too good',
+            'last_accessed' => '24-dec-2014'
+        );
+        $this->_adapter->insert('sessions', $bind);
+
+        $bind = array(
+            'id' => '2',
+            'data' => 'kaushik is too much good',
+            'last_accessed' => '24-dec-2014'
+        );
+        $this->_adapter->insert('sessions', $bind);
+
+        $needed = array('id', 'data');
+        $where = array(
+            'last_accessed' => array('value' => '24-dec-2014', 'op' => '='),
+            'data' => array('value' => '%kaushik%', 'op' => 'like')
+        );
+        $order = array(
+            'id' => 'DESC'
+        );
+
+        $rows = $this->_adapter->select('sessions', $needed, $where, $order);
+        $this->assertEquals(2, count($rows));
+        $this->assertEquals("2", $rows[0]['ID']);
+    }
+
     protected function tearDown() {
         $stmt = $this->getConnection()->getConnection()->prepare("TRUNCATE TABLE sessions");
         $stmt->execute();
