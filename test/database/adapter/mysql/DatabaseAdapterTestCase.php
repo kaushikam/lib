@@ -130,6 +130,36 @@ class DatabaseAdapterTestCase extends BaseMySQLPDOTestCase {
         $this->assertEquals('1', $row['id']);
     }
 
+    public function testUpdateWorksFine() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
+
+        $bind = array(
+            'id' => '1',
+            'data' => 'kaushik is too good',
+            'last_accessed' => '2014-12-24'
+        );
+        $result = $this->_adapter->insert('session', $bind);
+
+        $bind['data'] = 'Kaushik is tooooo goood';
+        $bind['last_accessed'] = '2014-12-25';
+
+        $where = array(
+            'id' => array('op' => '=', 'value' => '1'),
+            'last_accessed' => array('op' => '=', 'value' => '2014-12-24')
+        );
+
+        $affectedRows = $this->_adapter->update('session', $bind, $where);
+
+        $sql = "SELECT * FROM session WHERE id = :id";
+        $stmt = $this->getConnection()->getConnection()->prepare($sql);
+        $bind = array(':id' => '1');
+        $stmt->execute($bind);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        $this->assertEquals(1, $affectedRows);
+        $this->assertEquals("Kaushik is tooooo goood", $row['data']);
+    }
+
     protected function tearDown() {
         $stmt = $this->getConnection()->getConnection()->prepare("TRUNCATE TABLE session");
         $stmt->execute();

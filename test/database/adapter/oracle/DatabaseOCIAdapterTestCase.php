@@ -131,6 +131,36 @@ class DatabaseOCIAdapterTestCase extends BaseOracleTestCase {
         $this->assertEquals("1", $result);
     }
 
+    public function testUpdateWorksFine() {
+        $this->getLogger()->debug("******************" . __METHOD__ . "****************");
+
+        $bind = array(
+            'id' => '1',
+            'data' => 'kaushik is too good',
+            'last_accessed' => '24-dec-2014'
+        );
+        $result = $this->_adapter->insert('sessions', $bind);
+
+        $bind['data'] = 'Kaushik is tooooo goood';
+        $bind['last_accessed'] = '25-dec-2014';
+
+        $where = array(
+            'id' => array('op' => '=', 'value' => '1'),
+            'last_accessed' => array('op' => '=', 'value' => '24-dec-2014')
+        );
+
+        $affectedRows = $this->_adapter->update('sessions', $bind, $where);
+
+        $sql = "SELECT * FROM sessions WHERE id = :id";
+        $stmt = $this->getConnection()->getConnection()->prepare($sql);
+        $bind = array(':id' => '1');
+        $stmt->execute($bind);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        $this->assertEquals(1, $affectedRows);
+        $this->assertEquals("Kaushik is tooooo goood", $row['DATA']);
+    }
+
     protected function tearDown() {
         $stmt = $this->getConnection()->getConnection()->prepare("TRUNCATE TABLE sessions");
         $stmt->execute();

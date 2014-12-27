@@ -57,6 +57,17 @@ interface IDatabaseAdapter {
      */
     public function insert($table, Array $bind, $id = 'id', $idType = null);
 
+
+    /**
+     * @param $table
+     * @param array $bind
+     * @param array $where
+     * @param string $boolOperator
+     * @return mixed
+     * @throws DatabaseException
+     */
+    public function update($table, Array $bind, $where = array(), $boolOperator = ' AND ');
+
     /**
      * @return resource
      */

@@ -247,6 +247,60 @@ class DatabaseAdapterOCIImpl implements IDatabaseAdapter {
         return $bind[':returnId']['value'];
     }
 
+    /**
+     * @param $table
+     * @param array $bind
+     * @param array $where
+     * @param string $boolOperator
+     * @return mixed
+     * @throws DatabaseException
+     */
+    public function update($table, Array $bind, $where = array(), $boolOperator = ' AND ')
+    {
+        $this->getLogger()->debug("Table name is: $table");
+        $this->getLogger()->debug("Bind: " . print_r($bind, true));
+        $this->getLogger()->debug("Conditions: " . print_r($where, true));
+
+        $set = array();
+        foreach ($bind as $name => $value) {
+            unset($bind[$name]);
+            $bind[':' . $name] = $value;
+            $set[] = $name . ' = :' . $name;
+        }
+
+        $conditions = array();
+        if ($where) {
+            foreach ($where as $lhs => $rhs) {
+                unset($where[$lhs]);
+                $where[':c'.$lhs] = $rhs['value'];
+                $conditions[] = $lhs . " " . $rhs['op'] . " :c" . $lhs;
+            }
+        }
+
+        $sql = "UPDATE $table SET " . implode(', ', $set) .
+            ((!empty($conditions)) ? " WHERE " . implode($boolOperator, $conditions) : "");
+
+        $bind = array_merge($bind, $where);
+        $this->prepare($sql)->execute($bind);
+
+        if (($affectedRows = $this->numberOfAffectedRows()) > 0) {
+            $this->getLogger()->info("Update completed successfully by updating $affectedRows");
+        } else {
+            $this->getLogger()->info("Update did not update anything");
+        }
+
+        return $affectedRows;
+    }
+
+    private function numberOfAffectedRows() {
+       $affectedRows = @oci_num_rows($this->getStatement());
+        if ($e = oci_error($this->getStatement())) {
+            $this->getLogger()->info($e['message']);
+            throw new DatabaseException($e['message'], $e['code']);
+        }
+        return $affectedRows;
+    }
+
 
     /**
      * @return resource
