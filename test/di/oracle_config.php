@@ -27,5 +27,14 @@ $existing_array['kaushikam\lib\database\adapter\IDatabaseAdapter'] = array(
     )
 );
 
+$existing_array['kaushikam\lib\mapper\IBaseMapper'] = array(
+    'class' => 'kaushikam\lib\test\mapper\impl\oracle\SessionMapper',
+    'params' => array(
+        'adapter' => array(
+            'class' => 'kaushikam\lib\database\adapter\IDatabaseAdapter'
+        )
+    )
+);
+
 return $existing_array;
 

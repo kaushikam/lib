@@ -33,5 +33,14 @@ return array(
             'user' => $config->getMysqlUser(),
             'password' => $config->getMysqlPasword()
         )
+    ),
+
+    'kaushikam\lib\mapper\IBaseMapper' => array(
+        'class' => 'kaushikam\lib\test\mapper\impl\mysql\SessionMapper',
+        'params' => array(
+            'adapter' => array(
+                'class' => 'kaushikam\lib\database\adapter\IDatabaseAdapter'
+            )
+        )
     )
 );
