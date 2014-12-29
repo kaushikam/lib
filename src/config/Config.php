@@ -16,21 +16,23 @@ class Config {
      */
     private static $configuration;
 
-    public static function getConfig($configuration = null) {
+    public static function getConfig() {
         if (is_null(self::$configuration)) {
-            if (is_null($configuration))
-                throw new InvalidArgumentException("Configuration is null");
-
-            if (!$configuration instanceof IConfiguration)
-                throw new InvalidArgumentException("Invalid configuration type");
-
-            self::$configuration = $configuration;
+            throw new InvalidArgumentException("Configuration is null");
         }
 
         return self::$configuration;
     }
 
     public static function configureInstance(IConfiguration $configuration) {
+        if (is_null(self::$configuration) && is_null($configuration))
+                throw new InvalidArgumentException("Configuration is null");
+
+        if (!$configuration instanceof IConfiguration)
+            throw new InvalidArgumentException("Invalid configuration type");
+
         self::$configuration = $configuration;
+
+        return self::$configuration;
     }
 }

@@ -25,8 +25,7 @@ abstract class BaseMySQLPDOTestCase extends BaseTestCase {
     private static $_pdo;
 
     protected function setUp() {
-        Config::configureInstance(new TestLibraryConfiguration());
-        $this->_config = Config::getConfig();
+        $this->_config = Config::configureInstance(new TestLibraryConfiguration());
 
         $dicConf = new Configuration($this->getConfig()->getDiConfig());
         $this->_dic = new DependencyInjectionContainer($dicConf);
