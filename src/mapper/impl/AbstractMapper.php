@@ -95,4 +95,12 @@ abstract class AbstractMapper implements IBaseMapper {
     public function getAdapter() {
         return $this->_adapter;
     }
+
+    /**
+     * @param IDatabaseAdapter $adapter
+     * @return void
+     */
+    public function setAdapter(IDatabaseAdapter $adapter) {
+        $this->_adapter = $adapter;
+    }
 } 

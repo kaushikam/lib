@@ -27,4 +27,9 @@ interface IBaseMapper {
      */
     public function getAdapter();
 
+    /**
+     * @param IDatabaseAdapter $adapter
+     * @return void
+     */
+    public function setAdapter(IDatabaseAdapter $adapter);
 } 
