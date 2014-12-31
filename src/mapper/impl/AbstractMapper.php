@@ -42,7 +42,7 @@ abstract class AbstractMapper implements IBaseMapper {
     protected $_idType;
 
     /**
-     * @var IDatabaseAdapter
+     * @param IDatabaseAdapter $adapter
      * @inject
      */
     public function __construct(IDatabaseAdapter $adapter) {
