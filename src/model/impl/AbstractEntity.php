@@ -70,7 +70,8 @@ abstract class AbstractEntity implements IEntity {
     public function _setData(Array $data) {
         $data = array_change_key_case($data, CASE_LOWER);
         foreach ($data as $name => $value) {
-           $this->{$name} = $value;
+           if (isset($this->_data[$name]))
+               $this->{$name} = $value;
         }
     }
 
