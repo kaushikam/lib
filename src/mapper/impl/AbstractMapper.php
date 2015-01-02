@@ -103,4 +103,31 @@ abstract class AbstractMapper implements IBaseMapper {
     public function setAdapter(IDatabaseAdapter $adapter) {
         $this->_adapter = $adapter;
     }
+
+    /**
+     * @param array $data
+     * @return mixed
+     */
+    public function map(Array $data) {
+        $this->getLogger()->debug("Data: " . print_r($data, true));
+    }
+
+    /**
+     * @param array $rowSet
+     * @return array|null
+     */
+    protected function createObjectArrayFromRowSet(Array $rowSet) {
+        if (!$rowSet) {
+            $this->getLogger()->debug("Rowset is empty");
+            return null;
+        }
+
+        $this->getLogger()->debug("RowCount: " . count($rowSet));
+        $objArray = array();
+        foreach ($rowSet as $row) {
+            $objArray[] = $this->map($row);
+        }
+
+        return $objArray;
+    }
 } 
