@@ -116,7 +116,7 @@ abstract class AbstractMapper implements IBaseMapper {
      * @param array $rowSet
      * @return array|null
      */
-    protected function createObjectArrayFromRowSet(Array $rowSet) {
+    protected function createObjectArrayFromRowSet(Array $rowSet = null) {
         if (!$rowSet) {
             $this->getLogger()->debug("Rowset is empty");
             return null;
