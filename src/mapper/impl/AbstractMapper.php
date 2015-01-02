@@ -57,11 +57,7 @@ abstract class AbstractMapper implements IBaseMapper {
 
         $this->getAdapter()->disconnect();
 
-        if ($rows) {
-            return $this->map($rows[0]);
-        } else {
-            return null;
-        }
+        return ($rows) ? $this->map($rows[0]) : null;
     }
 
     public function findAll() {
@@ -71,15 +67,7 @@ abstract class AbstractMapper implements IBaseMapper {
 
         $this->getAdapter()->disconnect();
 
-        if ($rows) {
-            $objectArray = array();
-            foreach ($rows as $row) {
-                $objectArray[] = $this->map($row);
-            }
-            return $objectArray;
-        } else {
-            return null;
-        }
+        return $this->createObjectArrayFromRowSet($rows);
     }
 
     /**
