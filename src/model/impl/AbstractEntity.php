@@ -32,7 +32,7 @@ abstract class AbstractEntity implements IEntity {
         if (array_key_exists($name, $this->_data))
             $this->_data[$name] = $value;
         else
-            throw new InvalidArgumentException("There is no such methods");
+            throw new InvalidArgumentException("There is no such method as $name");
     }
 
     /**
@@ -44,7 +44,7 @@ abstract class AbstractEntity implements IEntity {
         if (array_key_exists($name, $this->_data))
             return $this->_data[$name];
         else
-            throw new InvalidArgumentException("There is no such method");
+            throw new InvalidArgumentException("There is no such method as $name");
     }
 
     /**
@@ -64,7 +64,7 @@ abstract class AbstractEntity implements IEntity {
         if (array_key_exists($name, $this->_data))
             unset($this->_data[$name]);
         else
-            throw new InvalidArgumentException("There is no such method");
+            throw new InvalidArgumentException("There is no such method as $name");
     }
 
     public function _setData(Array $data) {
