@@ -234,12 +234,14 @@ class DatabaseAdapterOCIImpl implements IDatabaseAdapter {
             $idType = SQLT_INT;
         $this->getLogger()->debug("ID type: $idType");
 
+        $columns = implode(', ', array_keys($bind));
+
         foreach ($bind as $name => $value) {
             unset ($bind[$name]);
             $bind[':' . $name] = $value;
         }
 
-        $sql = "INSERT INTO $table VALUES (" . implode(', ', array_keys($bind)) . ") RETURNING $id INTO :returnId";
+        $sql = "INSERT INTO $table ($columns) VALUES (" . implode(', ', array_keys($bind)) . ") RETURNING $id INTO :returnId";
         $bind[':returnId'] = array ('value' => null, 'length' => -1, 'type' => $idType);
         $this->prepare($sql)->execute($bind);
 
